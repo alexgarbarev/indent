@@ -1,8 +1,8 @@
 library indent.tests;
 
 import 'package:expected_output/expected_output.dart';
-import 'package:test/test.dart';
 import 'package:indent/indent.dart';
+import 'package:test/test.dart';
 
 void main() {
   _runDataCase(
@@ -35,6 +35,10 @@ void main() {
     );
   });
 
+  test('doesn not add empty newline at the end', () {
+    expect('Hello world'.indentBy(2), equals('  Hello world'));
+  });
+
   test('empty and blank inputs', () {
     expect(''.indent(0), equals(''));
     expect('    '.indent(0), equals(''));
@@ -51,8 +55,17 @@ void _runDataCase(
 
     test(dataCase.description, () {
       final actual = inputTransformer(dataCase.input);
-      final expected = outputTransformer!(dataCase.expectedOutput);
+      final expected = _outputByRemovingLastNewline(
+        outputTransformer!(dataCase.expectedOutput),
+      );
       expect(actual, equals(expected));
     });
   }
+}
+
+dynamic _outputByRemovingLastNewline(dynamic output) {
+  if (output is String && output.endsWith('\n')) {
+    return output.substring(0, output.length - 1);
+  }
+  return output;
 }

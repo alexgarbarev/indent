@@ -152,7 +152,11 @@ class Indentation {
         }
       }
 
-      buffer.writeln(result);
+      // Checking for buffer to handle "trim first line whitespace" case
+      if (i > 0 && buffer.isNotEmpty) {
+        buffer.writeln();
+      }
+      buffer.write(result);
     }
 
     return buffer.toString();
@@ -204,8 +208,11 @@ class Indentation {
     int desiredIndentationLevel,
   ) {
     final buffer = StringBuffer();
-
+    final lineLastIndex = lines.length - 1;
+    var lineIndex = -1;
     for (final line in lines) {
+      lineIndex += 1;
+
       if (line.content.isEmpty) {
         // Do not indent empty lines.
         buffer.writeln();
@@ -213,23 +220,15 @@ class Indentation {
       }
 
       final diff = line.indentationLevel - currentIndentationLevel;
-      final spaces = _generateIndentation(desiredIndentationLevel + diff);
+      final spaces = _indentation * (desiredIndentationLevel + diff);
 
       buffer
         ..write(spaces)
-        ..writeln(line.content);
-    }
+        ..write(line.content);
 
-    return buffer.toString();
-  }
-
-  // Generates an appropriate amount of spaces for the desired indentation level.
-  String _generateIndentation(int indentationLevel) {
-    if (indentationLevel == 0) return '';
-
-    final buffer = StringBuffer();
-    for (var i = 0; i < indentationLevel; i++) {
-      buffer.write(_indentation);
+      if (lineIndex != lineLastIndex) {
+        buffer.writeln();
+      }
     }
 
     return buffer.toString();
